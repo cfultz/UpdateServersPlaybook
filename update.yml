@@ -1,0 +1,32 @@
+---
+- name: update all remote hosts
+  hosts: allservers
+
+  tasks:
+  - name: update Ubuntu apt cache
+    become: true
+    apt: 
+      update_cache: yes
+      force_apt_get: yes
+      cache_valid_time: 3600
+
+  - name: update all apt packages
+    become: true
+    apt: 
+      state: latest
+      force_apt_get: yes
+
+  - name: check to see if reboot is needed
+    register: reboot_required_file
+    stat: path=/var/run/reboot-required get_checksum=false
+
+  - name: Reboot the server
+    become: true
+    reboot:
+      msg: "Reboot initiated by Ansible due to kernel updates"
+      connect_timeout: 5
+      reboot_timeout: 300
+      pre_reboot_delay: 0
+      post_reboot_delay: 30
+      test_command: uptime
+    when: reboot_required_file.stat.exists
