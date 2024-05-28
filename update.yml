@@ -3,7 +3,7 @@
   hosts: allservers
 
   tasks:
-  - name: update Ubuntu apt cache
+  - name: update apt cache
     become: true
     apt: 
       update_cache: yes
